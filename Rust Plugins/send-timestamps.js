@@ -1,6 +1,7 @@
 // @description Times in backticks (`21:30`) become timestamps in everyone's time zone
-// @version 1.1.0
+// @version 1.2.0
 // @author Ven · Rust by BG_0o
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

@@ -1,6 +1,13 @@
 // @description Alerts you when you're unfriended or removed from a server/group
-// @version 1.0.0
+// @version 1.1.0
 // @author nick · Rust by BG_0o
+// @gateway ready guildCreate guildUpdate channelCreate channelUpdate relationshipAdd relationshipUpdate relationshipRemove guildDelete channelRecipientRemove
+// @discord GET /users/@me
+// @discord DELETE /users/@me/relationships/*
+// @discord PUT /users/@me/relationships/*
+// @discord DELETE /users/@me/guilds/*
+// @discord DELETE /channels/*
+// @stores
 "use strict";
 (() => {
   // relationship-notifier/src/index.ts

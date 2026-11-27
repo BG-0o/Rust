@@ -1,7 +1,3 @@
-// @description Send messages without notifying anyone, like @silent
-// @version 1.1.0
-// @author Nuckyz, CatNoir · Rust by BG_0o
-
 import { say } from "../../_lib/src/say";
 
 const SUPPRESS_NOTIFICATIONS = 1 << 12;

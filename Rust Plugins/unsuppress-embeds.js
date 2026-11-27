@@ -1,6 +1,7 @@
 // @description "Show embeds" in the menu brings back removed link previews
-// @version 1.0.0
+// @version 1.1.0
 // @author Ven · Rust by BG_0o
+// @discord PATCH /channels/*/messages/*
 "use strict";
 (() => {
   // unsuppress-embeds/src/index.ts

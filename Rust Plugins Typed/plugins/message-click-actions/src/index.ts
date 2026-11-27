@@ -1,7 +1,3 @@
-// @description Double-click to reply/edit, plus "Delete now" in the menu
-// @version 1.0.0
-// @author Vendicated · Rust by BG_0o
-
 const settings = phoenix.settings.define({
   reply: {
     type: "switch",

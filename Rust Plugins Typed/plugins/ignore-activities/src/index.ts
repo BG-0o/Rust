@@ -1,7 +1,3 @@
-// @description Hide only the games/apps you choose from your status · Desktop
-// @version 1.1.0
-// @author Nuckyz · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 const settings = commands(

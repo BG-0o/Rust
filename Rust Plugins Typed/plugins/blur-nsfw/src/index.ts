@@ -1,7 +1,3 @@
-// @description Hides images and videos in NSFW channels behind a spoiler
-// @version 1.1.0
-// @author Vendicated · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 // Phoenix has no CSS, so there's no blur. The closest thing is the spoiler cover:

@@ -1,7 +1,3 @@
-// @description Removes extra indentation from code blocks before sending
-// @version 1.0.0
-// @author Ven · Rust by BG_0o
-
 const BLOCK = /```([^\n`]*)\n([\s\S]*?)```/g;
 
 function unindent(code: string): string {

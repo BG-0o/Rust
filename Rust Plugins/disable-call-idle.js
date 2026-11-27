@@ -1,6 +1,11 @@
 // @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.10.0
+// @version 0.11.0
 // @author Nuckyz · Rust by BG_0o
+// @gateway ready guildCreate guildUpdate initialGuild voiceStateUpdate callCreate callUpdate
+// @gateway-send 4
+// @discord GET /users/@me
+// @stores
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

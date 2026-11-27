@@ -1,7 +1,3 @@
-// @description Hides Discord Quests
-// @version 1.1.0
-// @author Equicord · Rust by BG_0o
-
 // Discord builds Quests from what it downloads from the API (/quests/@me, /quests/decision and
 // others). Every API response whose path mentions "quest" has its quest lists emptied, so no
 // quests, banners or new-quest alerts show up. The "Quests" entry in the sidebar is drawn by the

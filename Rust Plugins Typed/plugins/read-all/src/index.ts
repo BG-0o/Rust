@@ -1,7 +1,3 @@
-// @description Marks every server as read at once
-// @version 1.1.0
-// @author kemo · Rust by BG_0o
-
 import { say } from "../../_lib/src/say";
 
 const guilds = new Set<string>();

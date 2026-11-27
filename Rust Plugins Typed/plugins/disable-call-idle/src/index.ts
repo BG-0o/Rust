@@ -1,7 +1,3 @@
-// @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.10.0
-// @author Nuckyz · Rust by BG_0o
-
 import { say } from "../../_lib/src/say";
 
 // Vencord switches off Discord's idle timers. Phoenix's timers can't be reached from a plugin, so

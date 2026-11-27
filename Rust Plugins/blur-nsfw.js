@@ -1,6 +1,11 @@
 // @description Hides images and videos in NSFW channels behind a spoiler
-// @version 1.1.0
+// @version 1.2.0
 // @author Vendicated · Rust by BG_0o
+// @gateway ready guildCreate initialGuild channelCreate channelUpdate threadCreate threadUpdate messageCreate messageUpdate
+// @discord GET /channels/*
+// @discord GET /channels/*/messages
+// @stores
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

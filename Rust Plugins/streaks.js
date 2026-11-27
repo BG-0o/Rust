@@ -1,6 +1,11 @@
 // @description 🔥 Day streaks with people you DM
-// @version 1.1.0
+// @version 1.2.0
 // @author Equicord · Rust by BG_0o
+// @gateway ready channelCreate channelUpdate messageCreate
+// @discord GET /users/@me
+// @discord GET /channels/*
+// @discord GET /channels/*/messages
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

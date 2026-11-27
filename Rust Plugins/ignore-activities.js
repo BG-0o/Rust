@@ -1,6 +1,8 @@
 // @description Hide only the games/apps you choose from your status · Desktop
-// @version 1.1.0
+// @version 1.2.0
 // @author Nuckyz · Rust by BG_0o
+// @gateway-send 3
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

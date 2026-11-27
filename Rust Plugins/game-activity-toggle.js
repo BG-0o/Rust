@@ -1,6 +1,9 @@
 // @description Show or hide the game you're playing on your status · Desktop
-// @version 1.1.0
+// @version 1.2.0
 // @author Nuckyz, RuukuLada · Rust by BG_0o
+// @gateway-send 3
+// @discord PATCH /users/@me/settings-proto/1
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

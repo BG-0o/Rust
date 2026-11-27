@@ -1,6 +1,10 @@
 // @description Hides Discord Quests
-// @version 1.1.0
+// @version 1.2.0
 // @author Equicord · Rust by BG_0o
+// @gateway questsUserStatusUpdate questsNewQuests questsUserCompletionUpdate
+// @discord GET /quests
+// @discord GET /quests/**
+// @discord GET /users/@me/quests/**
 "use strict";
 (() => {
   // questify/src/index.ts

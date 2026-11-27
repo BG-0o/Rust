@@ -1,7 +1,3 @@
-// @description Calls from people you choose don't ring
-// @version 1.2.0
-// @author TheArmagan, thororen · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 import { say } from "../../_lib/src/say";
 

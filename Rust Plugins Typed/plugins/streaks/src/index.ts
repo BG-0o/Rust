@@ -1,7 +1,3 @@
-// @description 🔥 Day streaks with people you DM
-// @version 1.1.0
-// @author Equicord · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 // Equicord's version syncs through its own server and needs both people on Equicord. Here it is

@@ -1,7 +1,3 @@
-// @description Show or hide the game you're playing on your status · Desktop
-// @version 1.1.0
-// @author Nuckyz, RuukuLada · Rust by BG_0o
-
 import { say } from "../../_lib/src/say";
 
 // When hidden it does two things:

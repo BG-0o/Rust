@@ -1,7 +1,3 @@
-// @description Switches to Do Not Disturb while you're playing · Desktop
-// @version 1.1.0
-// @author thororen · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 const settings = commands(

@@ -1,6 +1,8 @@
 // @description Send messages without notifying anyone, like @silent
-// @version 1.1.0
+// @version 1.2.0
 // @author Nuckyz, CatNoir · Rust by BG_0o
+// @discord POST /channels/*/messages
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

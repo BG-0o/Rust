@@ -1,6 +1,8 @@
 // @description Shows messages from accounts flagged as "likely spammer"
-// @version 1.0.0
+// @version 1.1.0
 // @author Ven, Nuckyz · Rust by BG_0o
+// @gateway messageCreate messageUpdate
+// @discord GET /channels/*/messages
 "use strict";
 (() => {
   // i-love-spam/src/index.ts

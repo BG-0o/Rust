@@ -1,6 +1,9 @@
 // @description Notifies you when someone writes a word you chose
-// @version 1.2.0
+// @version 1.3.0
 // @author Equicord · Rust by BG_0o
+// @gateway ready guildCreate messageCreate
+// @discord GET /users/@me
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

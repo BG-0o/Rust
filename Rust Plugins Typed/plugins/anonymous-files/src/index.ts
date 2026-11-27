@@ -1,7 +1,3 @@
-// @description Renames the files you upload
-// @version 1.1.0
-// @author fawn · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 const settings = commands(

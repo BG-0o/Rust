@@ -1,6 +1,9 @@
 // @description Calls from people you choose don't ring
-// @version 1.2.0
+// @version 1.3.0
 // @author TheArmagan, thororen · Rust by BG_0o
+// @gateway callCreate callUpdate messageCreate
+// @discord GET /users/@me
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

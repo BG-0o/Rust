@@ -1,6 +1,9 @@
 // @description Notifies you when a friend joins a server voice channel
-// @version 1.2.0
+// @version 1.3.0
 // @author Equicord · Rust by BG_0o
+// @gateway ready guildCreate guildUpdate relationshipAdd relationshipUpdate relationshipRemove channelCreate channelUpdate voiceStateUpdate
+// @discord GET /users/@me
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

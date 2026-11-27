@@ -1,6 +1,7 @@
 // @description Stops Discord from setting you Idle on its own · Desktop
-// @version 1.0.0
+// @version 1.1.0
 // @author newwares, Nuckyz · Rust by BG_0o
+// @gateway-send 3
 "use strict";
 (() => {
   // no-idle/src/index.ts

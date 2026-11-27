@@ -1,7 +1,3 @@
-// @description Shows messages from accounts flagged as "likely spammer"
-// @version 1.0.0
-// @author Ven, Nuckyz · Rust by BG_0o
-
 const SPAMMER = 1 << 20;
 
 type WithAuthor = { author?: { public_flags?: number; flags?: number } };

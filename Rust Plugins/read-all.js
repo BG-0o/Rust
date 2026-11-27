@@ -1,6 +1,10 @@
 // @description Marks every server as read at once
-// @version 1.1.0
+// @version 1.2.0
 // @author kemo · Rust by BG_0o
+// @gateway ready guildCreate guildDelete
+// @discord POST /guilds/*/ack
+// @stores
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

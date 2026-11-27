@@ -1,7 +1,12 @@
 # Sunbird-Rust plugin sources
 
-TypeScript sources for the plugins in `Sunbird-Rust/`, laid out like Sunbird's own repo:
-`plugins/<name>/src/index.ts`. The `.js` files are these bundled as IIFEs (Sunbird only installs bundles).
+TypeScript sources, laid out like Sunbird's own repo: `plugins/<name>/manifest.ts` (description,
+version, author and **permissions**) and `plugins/<name>/src/index.ts`. The `.js` files are these
+bundled as IIFEs with the manifest written as the `// @` banner (Sunbird only installs bundles).
+
+Since Sunbird 0.1.1 a plugin only gets what its banner declares (`@gateway`, `@gateway-send`,
+`@discord`, `@stores`, `@messages`, `@ui-tree`); anything else is missing or refused. Each
+`manifest.ts` lists exactly what that plugin uses.
 
 ## API types
 
@@ -11,12 +16,8 @@ To type-check, copy the `plugins/` folders into a Sunbird checkout and run `tsc 
 
 ## Build
 
-```
-esbuild plugins/<name>/src/index.ts --bundle --format=iife --target=es2023 --outfile=<name>.js \
-  --banner:js="// @description ...\n// @version ...\n// @author ..."
-```
-
-(The `// @` header lines at the top of each `.ts` are the banner.)
+Copy `plugins/` into a Sunbird checkout and run `node web/tools/bundle-plugins.ts`, or use
+`build.mjs` here (same banner): `node build.mjs <outdir> <plugin names…>`.
 
 ## Known limits
 

@@ -1,7 +1,3 @@
-// @description Stops Discord from setting you Idle on its own · Desktop
-// @version 1.0.0
-// @author newwares, Nuckyz · Rust by BG_0o
-
 // When you go AFK Discord sends `afk: true` and status "idle". The status you picked is the one
 // sent while not AFK; it's remembered and sent instead.
 

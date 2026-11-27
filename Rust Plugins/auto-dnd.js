@@ -1,6 +1,8 @@
 // @description Switches to Do Not Disturb while you're playing · Desktop
-// @version 1.1.0
+// @version 1.2.0
 // @author thororen · Rust by BG_0o
+// @gateway-send 3
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts

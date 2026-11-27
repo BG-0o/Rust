@@ -1,7 +1,3 @@
-// @description Notifies you when someone writes a word you chose
-// @version 1.2.0
-// @author Equicord · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 const settings = commands(

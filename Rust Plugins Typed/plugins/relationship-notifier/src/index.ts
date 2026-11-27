@@ -1,7 +1,3 @@
-// @description Alerts you when you're unfriended or removed from a server/group
-// @version 1.0.0
-// @author nick · Rust by BG_0o
-
 const settings = phoenix.settings.define({
   friends: { type: "switch", title: "Unfriended", default: true },
   servers: { type: "switch", title: "Removed from a server", description: "Kicked, banned or server deleted", default: true },

@@ -1,7 +1,3 @@
-// @description Custom "Playing…" activity on your status · Desktop
-// @version 1.1.0
-// @author Vencord · Rust by BG_0o
-
 import { commands } from "../../_lib/src/commands";
 
 const TYPES: Record<string, number> = { playing: 0, streaming: 1, listening: 2, watching: 3, competing: 5 };

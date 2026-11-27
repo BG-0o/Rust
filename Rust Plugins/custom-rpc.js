@@ -1,6 +1,8 @@
 // @description Custom "Playing…" activity on your status · Desktop
-// @version 1.1.0
+// @version 1.2.0
 // @author Vencord · Rust by BG_0o
+// @gateway-send 3
+// @messages
 "use strict";
 (() => {
   // _lib/src/say.ts
