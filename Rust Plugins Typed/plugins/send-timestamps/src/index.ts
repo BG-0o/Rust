@@ -1,14 +1,17 @@
 // @description Times in backticks (`21:30`) become timestamps in everyone's time zone
-// @version 1.0.0
+// @version 1.1.0
 // @author Ven · Rust by BG_0o
+
+import { commands } from "../../_lib/src/commands";
 
 const detected = -new Date().getTimezoneOffset() / 60;
 
-const settings = phoenix.settings.define({
+const settings = commands(
+  phoenix.settings.define({
   offset: {
     type: "number",
     title: "Your UTC offset",
-    description: "Hours, e.g. -3 for Brasília",
+    description: "Hours, e.g. -3 for Brasília · !ts offset <value>",
     default: Number.isFinite(detected) && detected !== 0 ? detected : -3,
   },
   style: {
@@ -21,7 +24,10 @@ const settings = phoenix.settings.define({
     ],
     default: "t",
   },
-});
+  }),
+  "ts",
+  { offset: { key: "offset", kind: "number" } }
+);
 
 const PATTERN = /`(?:(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s+)?(\d{1,2}):(\d{2})\s*(am|pm)?`/gi;
 

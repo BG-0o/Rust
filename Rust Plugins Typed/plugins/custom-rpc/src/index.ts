@@ -1,11 +1,14 @@
 // @description Custom "Playing…" activity on your status · Desktop
-// @version 1.0.0
+// @version 1.1.0
 // @author Vencord · Rust by BG_0o
+
+import { commands } from "../../_lib/src/commands";
 
 const TYPES: Record<string, number> = { playing: 0, streaming: 1, listening: 2, watching: 3, competing: 5 };
 const startedAt = Date.now();
 
-const settings = phoenix.settings.define({
+const settings = commands(
+  phoenix.settings.define({
   enabled: {
     type: "switch",
     title: "Enabled",
@@ -24,19 +27,19 @@ const settings = phoenix.settings.define({
     ],
     default: "playing",
   },
-  name: { type: "text", title: "Name", description: "Required, e.g. a game name", default: "" },
-  details: { type: "text", title: "Line 1", description: "Optional", default: "" },
-  state: { type: "text", title: "Line 2", description: "Optional", default: "" },
+  name: { type: "text", title: "Name", description: "Required, e.g. a game name · !rpc name <value>", default: "" },
+  details: { type: "text", title: "Line 1", description: "Optional · !rpc line1 <value>", default: "" },
+  state: { type: "text", title: "Line 2", description: "Optional · !rpc line2 <value>", default: "" },
   streamUrl: {
     type: "text",
     title: "Stream URL",
-    description: "Streaming only (twitch.tv or youtube.com)",
+    description: "Streaming only (twitch.tv or youtube.com) · !rpc url <value>",
     default: "",
   },
   applicationId: {
     type: "text",
     title: "Application ID",
-    description: "Optional, from the Developer Portal, for an icon",
+    description: "Optional, from the Developer Portal, for an icon · !rpc app <value>",
     default: "",
   },
   showTime: { type: "switch", title: "Show elapsed time", default: true },
@@ -46,7 +49,10 @@ const settings = phoenix.settings.define({
     description: "Hides real games while this one shows",
     default: false,
   },
-});
+  }),
+  "rpc",
+  { name: { key: "name", kind: "text" }, line1: { key: "details", kind: "text" }, line2: { key: "state", kind: "text" }, url: { key: "streamUrl", kind: "text" }, app: { key: "applicationId", kind: "text" } }
+);
 
 type Activity = Record<string, unknown> & { type?: number };
 

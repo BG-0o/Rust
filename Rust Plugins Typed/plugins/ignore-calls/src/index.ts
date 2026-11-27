@@ -1,21 +1,27 @@
 // @description Calls from people you choose don't ring
-// @version 1.0.0
+// @version 1.1.0
 // @author TheArmagan, thororen · Rust by BG_0o
+
+import { commands } from "../../_lib/src/commands";
 
 // Discord rings you because your id is in the call's `ringing` list. When the call comes from
 // someone you ignore, your id is taken out before the app sees it, so nothing rings. The call
 // itself still exists and you can join it from the DM if you want.
 
-const settings = phoenix.settings.define({
+const settings = commands(
+  phoenix.settings.define({
   users: {
     type: "text",
     title: "Ignored people",
-    description: "User IDs, comma separated. Or right-click > \"Ignore calls\"",
+    description: "User IDs, comma separated. Or right-click > \"Ignore calls\" · !calls users add <x>",
     default: "",
     multiline: true,
   },
   notify: { type: "switch", title: "Pop-up when a call is ignored", default: true },
-});
+  }),
+  "calls",
+  { users: { key: "users", kind: "list" } }
+);
 
 const parse = () =>
   new Set(

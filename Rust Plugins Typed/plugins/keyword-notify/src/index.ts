@@ -1,12 +1,15 @@
 // @description Notifies you when someone writes a word you chose
-// @version 1.0.0
+// @version 1.1.0
 // @author Equicord · Rust by BG_0o
 
-const settings = phoenix.settings.define({
+import { commands } from "../../_lib/src/commands";
+
+const settings = commands(
+  phoenix.settings.define({
   keywords: {
     type: "text",
     title: "Keywords",
-    description: "One per line, e.g. your name, a game",
+    description: "One per line, e.g. your name, a game · !kw words add <x>",
     default: "",
     multiline: true,
   },
@@ -26,7 +29,7 @@ const settings = phoenix.settings.define({
   ignoredChannels: {
     type: "text",
     title: "Ignored channels",
-    description: "Channel or server IDs, comma separated",
+    description: "Channel or server IDs, comma separated · !kw channels add <x>",
     default: "",
   },
   markInChat: {
@@ -35,7 +38,10 @@ const settings = phoenix.settings.define({
     description: "Adds a note only you see under the message",
     default: false,
   },
-});
+  }),
+  "kw",
+  { words: { key: "keywords", kind: "list" }, channels: { key: "ignoredChannels", kind: "list" } }
+);
 
 let me: string | null = null;
 phoenix.discord

@@ -1,8 +1,11 @@
 // @description Renames the files you upload
-// @version 1.0.0
+// @version 1.1.0
 // @author fawn · Rust by BG_0o
 
-const settings = phoenix.settings.define({
+import { commands } from "../../_lib/src/commands";
+
+const settings = commands(
+  phoenix.settings.define({
   enabled: { type: "switch", title: "Enabled", default: true },
   method: {
     type: "select",
@@ -14,10 +17,13 @@ const settings = phoenix.settings.define({
     ],
     default: "random",
   },
-  length: { type: "number", title: "Random name length", default: 7 },
-  consistent: { type: "text", title: "Fixed name", description: "For \"Always the same name\"", default: "image" },
+  length: { type: "number", title: "Random name length", description: "!anon length <value>", default: 7 },
+  consistent: { type: "text", title: "Fixed name", description: "For \"Always the same name\" · !anon name <value>", default: "image" },
   keepExtension: { type: "switch", title: "Keep extension", description: ".png, .mp4…", default: true },
-});
+  }),
+  "anon",
+  { name: { key: "consistent", kind: "text" }, length: { key: "length", kind: "number" } }
+);
 
 const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 

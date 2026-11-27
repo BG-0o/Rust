@@ -1,13 +1,16 @@
 // @description Hides images and videos in NSFW channels behind a spoiler
-// @version 1.0.0
+// @version 1.1.0
 // @author Vendicated · Rust by BG_0o
+
+import { commands } from "../../_lib/src/commands";
 
 // Phoenix has no CSS, so there's no blur. The closest thing is the spoiler cover:
 // attachments are marked as spoilers and only show when clicked.
 
 const IS_SPOILER = 1 << 3;
 
-const settings = phoenix.settings.define({
+const settings = commands(
+  phoenix.settings.define({
   allChannels: {
     type: "switch",
     title: "Hide in all channels",
@@ -23,11 +26,14 @@ const settings = phoenix.settings.define({
   ignored: {
     type: "text",
     title: "Ignored channels",
-    description: "Channel or category IDs, comma separated",
+    description: "Channel or category IDs, comma separated · !nsfw ignore add <x>",
     default: "",
     multiline: true,
   },
-});
+  }),
+  "nsfw",
+  { ignore: { key: "ignored", kind: "list" } }
+);
 
 type ChannelInfo = { nsfw: boolean; parent: string | null };
 const channels = new Map<string, ChannelInfo>();

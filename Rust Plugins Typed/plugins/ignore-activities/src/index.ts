@@ -1,12 +1,15 @@
 // @description Hide only the games/apps you choose from your status · Desktop
-// @version 1.0.0
+// @version 1.1.0
 // @author Nuckyz · Rust by BG_0o
 
-const settings = phoenix.settings.define({
+import { commands } from "../../_lib/src/commands";
+
+const settings = commands(
+  phoenix.settings.define({
   names: {
     type: "text",
     title: "Hide",
-    description: "One name per line, as shown on your status, e.g. Roblox",
+    description: "One name per line, as shown on your status, e.g. Roblox · !hideact names add <x>",
     default: "",
     multiline: true,
   },
@@ -18,7 +21,10 @@ const settings = phoenix.settings.define({
   },
   hideListening: { type: "switch", title: "Hide all \"Listening\"", description: "Spotify etc.", default: false },
   hideWatching: { type: "switch", title: "Hide all \"Watching\"", default: false },
-});
+  }),
+  "hideact",
+  { names: { key: "names", kind: "list" } }
+);
 
 const list = () =>
   settings.names

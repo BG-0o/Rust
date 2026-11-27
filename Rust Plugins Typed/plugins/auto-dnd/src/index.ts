@@ -1,8 +1,11 @@
 // @description Switches to Do Not Disturb while you're playing · Desktop
-// @version 1.0.0
+// @version 1.1.0
 // @author thororen · Rust by BG_0o
 
-const settings = phoenix.settings.define({
+import { commands } from "../../_lib/src/commands";
+
+const settings = commands(
+  phoenix.settings.define({
   status: {
     type: "select",
     title: "Status while playing",
@@ -16,11 +19,14 @@ const settings = phoenix.settings.define({
   exclude: {
     type: "text",
     title: "Ignored games",
-    description: "One per line; these won't change your status",
+    description: "One per line; these won't change your status · !dnd ignore add <x>",
     default: "",
     multiline: true,
   },
-});
+  }),
+  "dnd",
+  { ignore: { key: "exclude", kind: "list" } }
+);
 
 type Presence = { status?: string; activities?: { type?: number; name?: string }[] };
 

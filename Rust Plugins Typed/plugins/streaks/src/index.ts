@@ -1,6 +1,8 @@
 // @description 🔥 Day streaks with people you DM
-// @version 1.0.0
+// @version 1.1.0
 // @author Equicord · Rust by BG_0o
+
+import { commands } from "../../_lib/src/commands";
 
 // Equicord's version syncs through its own server and needs both people on Equicord. Here it is
 // worked out on this device from the DMs Phoenix sees: a day counts when you both sent at least
@@ -9,17 +11,22 @@
 
 const detected = -new Date().getTimezoneOffset() / 60;
 
-const settings = phoenix.settings.define({
-  minimum: { type: "number", title: "Show from", description: "Days in a row", default: 2 },
+const settings = commands(
+  phoenix.settings.define({
+  minimum: { type: "number", title: "Show from", description: "Days in a row · !streak min <value>", default: 2 },
   headers: { type: "switch", title: "In messages", description: "After the timestamp", default: true, onChange: () => redrawAll() },
   list: { type: "switch", title: "In the DM list", default: true, onChange: () => redrawAll() },
   offset: {
     type: "number",
     title: "Your UTC offset",
-    description: "Where a day ends, e.g. -3 for Brasília",
+    description: "Where a day ends, e.g. -3 for Brasília · !streak offset <value>",
     default: Number.isFinite(detected) && detected !== 0 ? detected : -3,
   },
-});
+  }),
+  "streak",
+  { min: { key: "minimum", kind: "number" }, offset: { key: "offset", kind: "number" } },
+  () => redrawAll()
+);
 
 // Day number on your clock.
 const dayOf = (ms: number): number => Math.floor((ms + settings.offset * 3600_000) / 86400_000);

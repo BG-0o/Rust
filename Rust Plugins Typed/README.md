@@ -30,3 +30,25 @@ esbuild plugins/<name>/src/index.ts --bundle --format=iife --target=es2023 --out
   MESSAGE_UPDATE and message history. Untested against a real flagged account.
 - **disable-call-idle** (beta): holds the last person's leave in a DM call and replays it via
   `phoenix.enqueue` when you leave. Doesn't help with calls nobody answered.
+
+## Chat commands (`plugins/_lib/src/commands.ts`)
+
+Sunbird's "Edit" box for text/number settings doesn't open on some Phoenix builds, so the plugins with
+text, number or list settings also take them from chat. A value set this way wins over the settings
+page until it's cleared, and is kept in the plugin's storage. The message itself isn't sent.
+
+| Plugin | Command |
+|---|---|
+| custom-rpc | `!rpc name/line1/line2/url/app <value>` |
+| ignore-activities | `!hideact add/remove/set/clear <names>` |
+| auto-dnd | `!dnd add/remove <games>` |
+| anonymous-files | `!anon name <text>`, `!anon length <n>` |
+| keyword-notify | `!kw add/remove <words>`, `!kw channels add <ids>` |
+| voice-join-messages | `!vc list add <ids>`, `!vc ignore add <ids>` |
+| ignore-calls | `!calls add/remove <ids>` |
+| blur-nsfw | `!nsfw add/remove <channel ids>` |
+| send-timestamps | `!ts offset <hours>` |
+| streaks | `!streak min <days>`, `!streak offset <hours>` |
+
+`!<cmd>` alone shows the current values, `!<cmd> help` lists the fields, `<field> clear` (text/number) or
+`<field> reset` (list) goes back to the settings page value.

@@ -1,8 +1,11 @@
 // @description Notifies you when a friend joins a server voice channel
-// @version 1.0.0
+// @version 1.1.0
 // @author Equicord · Rust by BG_0o
 
-const settings = phoenix.settings.define({
+import { commands } from "../../_lib/src/commands";
+
+const settings = commands(
+  phoenix.settings.define({
   who: {
     type: "select",
     title: "Notify about",
@@ -16,13 +19,13 @@ const settings = phoenix.settings.define({
   list: {
     type: "text",
     title: "People list",
-    description: "User IDs, comma separated. For \"Only the list\"",
+    description: "User IDs, comma separated. For \"Only the list\" · !vc list add <x>",
     default: "",
   },
   ignored: {
     type: "text",
     title: "Never notify about",
-    description: "User or server IDs, comma separated",
+    description: "User or server IDs, comma separated · !vc ignore add <x>",
     default: "",
   },
   how: {
@@ -41,7 +44,10 @@ const settings = phoenix.settings.define({
     title: "Even if I'm in the same call",
     default: false,
   },
-});
+  }),
+  "vc",
+  { list: { key: "list", kind: "list" }, ignore: { key: "ignored", kind: "list" } }
+);
 
 type VS = { user_id?: string; channel_id?: string | null; guild_id?: string | null; member?: { user?: U; nick?: string | null } };
 type U = { id?: string; username?: string; global_name?: string | null };
