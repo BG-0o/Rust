@@ -1,8 +1,19 @@
 // @description Send messages without notifying anyone, like @silent
-// @version 1.0.0
+// @version 1.1.0
 // @author Nuckyz, CatNoir · Rust by BG_0o
 "use strict";
 (() => {
+  // _lib/src/say.ts
+  function say(text, channelId, author = "Sunbird") {
+    phoenix.ui.toast(text);
+    if (!channelId) return;
+    try {
+      phoenix.messages.addLocal(channelId, text, { author });
+    } catch (err) {
+      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
+    }
+  }
+
   // silent-messages/src/index.ts
   var SUPPRESS_NOTIFICATIONS = 1 << 12;
   var KEY = "on";
@@ -31,19 +42,19 @@
       default: true
     }
   });
-  var toggle = () => {
+  var toggle = (channel) => {
     on = !on;
     phoenix.storage.set(KEY, on);
-    phoenix.ui.toast(on ? "\u{1F515} Silent mode on" : "\u{1F514} Silent mode off");
+    say(on ? "\u{1F515} Silent mode on" : "\u{1F514} Silent mode off", channel, "silent");
   };
   phoenix.ui.addMessageAction({
     label: "Toggle silent mode",
     visible: () => settings.inMenu,
-    onPress: toggle
+    onPress: (ctx) => toggle(ctx.channelId ?? ctx.message?.channel_id)
   });
-  phoenix.messages.onSend((text) => {
+  phoenix.messages.onSend((text, ctx) => {
     if (text.trim().toLowerCase() !== "!silent") return;
-    toggle();
+    toggle(ctx?.channelId);
     return false;
   });
   phoenix.discord.onRequest({ method: "POST", pathPrefix: "/channels/", pathSuffix: "/messages" }, (req) => {

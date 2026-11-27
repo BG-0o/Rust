@@ -1,6 +1,8 @@
 // @description Show or hide the game you're playing on your status · Desktop
-// @version 1.0.0
+// @version 1.1.0
 // @author Nuckyz, RuukuLada · Rust by BG_0o
+
+import { say } from "../../_lib/src/say";
 
 // When hidden it does two things:
 // 1. Turns off the account's "Share detected activities" (the setting Vencord uses).
@@ -39,36 +41,36 @@ const settings = phoenix.settings.define({
 const PROTO_ON = "WgQaAggB";
 const PROTO_OFF = "WgIaAA==";
 
-async function syncAccount(value: boolean, notify: boolean) {
+async function syncAccount(value: boolean, notify: boolean, channel?: string | null) {
   try {
     const res = await phoenix.discord.patch("/users/@me/settings-proto/1", { settings: value ? PROTO_ON : PROTO_OFF });
     if (!res.ok) {
       phoenix.log.warn(`game-activity-toggle: PATCH failed ${res.status}`);
-      if (notify) phoenix.ui.toast(`Couldn't change it on Discord (${res.status})`);
+      if (notify) say(`Couldn't change it on Discord (${res.status})`, channel, "game");
       return;
     }
-    if (notify) phoenix.ui.toast(value ? "🎮 Game visible" : "🎮 Game hidden");
+    if (notify) say(value ? "🎮 Game visible" : "🎮 Game hidden", channel, "game");
   } catch {
-    if (notify) phoenix.ui.toast("Can't reach Discord");
+    if (notify) say("Can't reach Discord", channel, "game");
   }
 }
 
-function set(value: boolean, notify: boolean) {
+function set(value: boolean, notify: boolean, channel?: string | null) {
   visible = value;
   phoenix.storage.set(KEY, value);
-  void syncAccount(value, notify);
+  void syncAccount(value, notify, channel);
 }
 
-phoenix.messages.onSend((text) => {
+phoenix.messages.onSend((text, ctx) => {
   if (text.trim().toLowerCase() !== "!game") return;
-  set(!visible, true);
+  set(!visible, true, ctx?.channelId);
   return false;
 });
 
 phoenix.ui.addMessageAction({
   label: "Show/hide game",
   visible: () => settings.inMenu,
-  onPress: () => set(!visible, true),
+  onPress: (ctx) => set(!visible, true, ctx.channelId ?? ctx.message?.channel_id),
 });
 
 // Op 3 = presence update: { status, since, activities, afk }.

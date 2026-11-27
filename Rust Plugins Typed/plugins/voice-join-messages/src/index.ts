@@ -1,5 +1,5 @@
 // @description Notifies you when a friend joins a server voice channel
-// @version 1.1.0
+// @version 1.2.0
 // @author Equicord · Rust by BG_0o
 
 import { commands } from "../../_lib/src/commands";
@@ -36,7 +36,7 @@ const settings = commands(
       { value: "dm", label: "Note in their DM (only you see it)" },
       { value: "both", label: "Both" },
     ],
-    default: "popup",
+    default: "both",
   },
   leaves: { type: "switch", title: "Also when they leave", default: false },
   sameCall: {

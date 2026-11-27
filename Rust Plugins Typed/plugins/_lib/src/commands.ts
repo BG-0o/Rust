@@ -9,6 +9,8 @@
 //   !<prefix> [field] set <a, b>     replaces a list
 //   !<prefix> [field] clear          empties a list override
 
+import { say } from "./say";
+
 export type Kind = "text" | "number" | "list";
 export interface Field {
   /** The settings key it fills. */
@@ -75,17 +77,18 @@ export function commands<S extends object>(
       .map((n) => (fields[n].kind === "list" ? `${n} add|remove|set|clear` : `${n} <value>|clear`))
       .join(" · ")}`;
 
-  phoenix.messages.onSend((text) => {
+  phoenix.messages.onSend((text, ctx) => {
+    const reply = (m: string) => say(m, ctx?.channelId, cmd);
     const trimmed = text.trim();
     if (trimmed.toLowerCase() !== cmd && !trimmed.toLowerCase().startsWith(`${cmd} `)) return;
 
     const rest = trimmed.slice(cmd.length).trim();
     if (!rest) {
-      phoenix.ui.toast(summary());
+      reply(summary());
       return false;
     }
     if (rest === "help") {
-      phoenix.ui.toast(help());
+      reply(help());
       return false;
     }
 
@@ -97,7 +100,7 @@ export function commands<S extends object>(
         name = firstList;
         tail = [first, ...tail];
       } else {
-        phoenix.ui.toast(`Unknown field "${first}". ${help()}`);
+        reply(`Unknown field "${first}". ${help()}`);
         return false;
       }
     }
@@ -112,52 +115,52 @@ export function commands<S extends object>(
       const current = items(field.key);
       if (op === "clear") {
         save(field.key, "");
-        phoenix.ui.toast(`${name}: cleared`);
+        reply(`${name}: cleared`);
       } else if (op === "add" && arg) {
         const add = arg.split(SPLIT).map((s) => s.trim()).filter(Boolean);
         const next = [...current];
         for (const a of add) if (!next.some((c) => c.toLowerCase() === a.toLowerCase())) next.push(a);
         save(field.key, next.join("\n"));
-        phoenix.ui.toast(`${name}: ${short(next.join(", "), 150)}`);
+        reply(`${name}: ${short(next.join(", "), 150)}`);
       } else if (op === "remove" && arg) {
         const drop = arg.split(SPLIT).map((s) => s.trim().toLowerCase()).filter(Boolean);
         const next = current.filter((c) => !drop.includes(c.toLowerCase()));
         save(field.key, next.join("\n"));
-        phoenix.ui.toast(`${name}: ${next.length ? short(next.join(", "), 150) : "—"}`);
+        reply(`${name}: ${next.length ? short(next.join(", "), 150) : "—"}`);
       } else if (op === "set") {
         const next = arg.split(SPLIT).map((s) => s.trim()).filter(Boolean);
         save(field.key, next.join("\n"));
-        phoenix.ui.toast(`${name}: ${next.length ? short(next.join(", "), 150) : "—"}`);
+        reply(`${name}: ${next.length ? short(next.join(", "), 150) : "—"}`);
       } else if (op === "reset") {
         reset(field.key);
-        phoenix.ui.toast(`${name}: back to the settings page`);
+        reply(`${name}: back to the settings page`);
       } else {
-        phoenix.ui.toast(`${cmd} ${name} add|remove|set|clear|reset <items>`);
+        reply(`${cmd} ${name} add|remove|set|clear|reset <items>`);
       }
       return false;
     }
 
     if (!value) {
-      phoenix.ui.toast(`${name}: ${String(read(field.key) ?? "") || "—"}`);
+      reply(`${name}: ${String(read(field.key) ?? "") || "—"}`);
       return false;
     }
     if (value.toLowerCase() === "clear") {
       reset(field.key);
-      phoenix.ui.toast(`${name}: back to the settings page`);
+      reply(`${name}: back to the settings page`);
       return false;
     }
     if (field.kind === "number") {
       const n = Number(value.replace(",", "."));
       if (!Number.isFinite(n)) {
-        phoenix.ui.toast(`${name} needs a number`);
+        reply(`${name} needs a number`);
         return false;
       }
       save(field.key, n);
-      phoenix.ui.toast(`${name}: ${n}`);
+      reply(`${name}: ${n}`);
       return false;
     }
     save(field.key, value);
-    phoenix.ui.toast(`${name}: ${short(value, 150)}`);
+    reply(`${name}: ${short(value, 150)}`);
     return false;
   });
 

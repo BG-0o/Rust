@@ -1,8 +1,9 @@
 // @description Calls from people you choose don't ring
-// @version 1.1.0
+// @version 1.2.0
 // @author TheArmagan, thororen · Rust by BG_0o
 
 import { commands } from "../../_lib/src/commands";
+import { say } from "../../_lib/src/say";
 
 // Discord rings you because your id is in the call's `ringing` list. When the call comes from
 // someone you ignore, your id is taken out before the app sees it, so nothing rings. The call
@@ -64,7 +65,7 @@ function filter(call: Call): Call | void {
   if (settings.notify && !told.has(key)) {
     told.add(key);
     if (told.size > 100) told.clear();
-    phoenix.ui.toast(`📵 Ignored a call from ${names.get(caller.user_id) ?? "someone you ignore"}`);
+    say(`📵 Ignored a call from ${names.get(caller.user_id) ?? "someone you ignore"}`, call.channel_id, "ignore-calls");
   }
   return call;
 }
@@ -98,7 +99,7 @@ phoenix.ui.addMessageAction({
     extra.add(a.id);
     save();
     names.set(a.id, a.global_name || a.username || a.id);
-    phoenix.ui.toast(`📵 Calls from ${names.get(a.id)} are ignored`);
+    say(`📵 Calls from ${names.get(a.id)} are ignored`, ctx.channelId ?? ctx.message?.channel_id, "ignore-calls");
   },
 });
 
@@ -113,7 +114,7 @@ phoenix.ui.addMessageAction({
     if (!id) return;
     extra.delete(id);
     save();
-    phoenix.ui.toast("📞 Their calls ring again");
+    say("📞 Their calls ring again", ctx.channelId ?? ctx.message?.channel_id, "ignore-calls");
   },
 });
 

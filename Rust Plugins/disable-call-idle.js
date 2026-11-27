@@ -1,8 +1,19 @@
 // @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.9.0
+// @version 0.10.0
 // @author Nuckyz · Rust by BG_0o
 "use strict";
 (() => {
+  // _lib/src/say.ts
+  function say(text, channelId, author = "Sunbird") {
+    phoenix.ui.toast(text);
+    if (!channelId) return;
+    try {
+      phoenix.messages.addLocal(channelId, text, { author });
+    } catch (err) {
+      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
+    }
+  }
+
   // disable-call-idle/src/index.ts
   var settings = phoenix.settings.define({
     dm: {
@@ -97,7 +108,7 @@
             held.set(s.user_id, { ...s });
             redraw(s.user_id);
             phoenix.log.info(`disable-call-idle: keeping ${s.user_id} in the call so it doesn't time out`);
-            if (settings.notify) phoenix.ui.toast("\u{1F47B} Kept them in the call so you don't drop");
+            if (settings.notify) say("\u{1F47B} Kept them in the call so you don't drop", current.channel, "call-idle");
             return {
               ...lastState.get(s.user_id) ?? {},
               ...s,

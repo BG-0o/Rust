@@ -1,6 +1,8 @@
 // @description Marks every server as read at once
-// @version 1.0.0
+// @version 1.1.0
 // @author kemo · Rust by BG_0o
+
+import { say } from "../../_lib/src/say";
 
 const guilds = new Set<string>();
 
@@ -31,18 +33,19 @@ phoenix.stores
 
 let running = false;
 
-async function readAll() {
+async function readAll(channel?: string | null) {
+  const tell = (m: string) => say(m, channel, "readall");
   if (running) {
-    phoenix.ui.toast("Already marking…");
+    tell("Already marking…");
     return;
   }
   const ids = [...guilds];
   if (ids.length === 0) {
-    phoenix.ui.toast("Servers still loading, try again in a moment");
+    tell("Servers still loading, try again in a moment");
     return;
   }
   running = true;
-  phoenix.ui.toast(`Marking ${ids.length} servers as read…`);
+  tell(`Marking ${ids.length} servers as read…`);
   let done = 0;
   let failed = 0;
   try {
@@ -51,22 +54,22 @@ async function readAll() {
         const res = await phoenix.discord.post(`/guilds/${id}/ack`, {});
         if (res.ok) done++;
         else if (res.status === 429) {
-          phoenix.ui.toast(`Discord asked to slow down after ${done} servers. Try again in a minute`);
+          tell(`Discord asked to slow down after ${done} servers. Try again in a minute`);
           return;
         } else failed++;
       } catch {
         failed++;
       }
     }
-    phoenix.ui.toast(failed ? `✅ ${done} servers read (${failed} failed)` : `✅ ${done} servers read`);
+    tell(failed ? `✅ ${done} servers read (${failed} failed)` : `✅ ${done} servers read`);
   } finally {
     running = false;
   }
 }
 
-phoenix.messages.onSend((text) => {
+phoenix.messages.onSend((text, ctx) => {
   if (text.trim().toLowerCase() !== "!readall") return;
-  void readAll();
+  void readAll(ctx?.channelId);
   return false;
 });
 
@@ -88,7 +91,7 @@ const settings = phoenix.settings.define({
 phoenix.ui.addMessageAction({
   label: "Mark all as read",
   visible: () => settings.inMenu,
-  onPress: () => void readAll(),
+  onPress: (ctx) => void readAll(ctx.channelId ?? ctx.message?.channel_id),
 });
 
 phoenix.log.info("read-all loaded");

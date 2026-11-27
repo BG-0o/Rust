@@ -52,3 +52,10 @@ page until it's cleared, and is kept in the plugin's storage. The message itself
 
 `!<cmd>` alone shows the current values, `!<cmd> help` lists the fields, `<field> clear` (text/number) or
 `<field> reset` (list) goes back to the settings page value.
+
+## Replies (`plugins/_lib/src/say.ts`)
+
+On Phoenix builds where Sunbird's overlay doesn't draw (the same one the "Edit" box uses), pop-ups
+(`phoenix.ui.toast` / `notify`) are invisible. Commands, menu actions and a few alerts therefore also
+answer with a message only you see (`phoenix.messages.addLocal`) in the channel you used them in.
+keyword-notify's "Mark in chat" and voice-join-messages' "Both" are on by default for the same reason.

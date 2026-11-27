@@ -1,6 +1,8 @@
 // @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.9.0
+// @version 0.10.0
 // @author Nuckyz · Rust by BG_0o
+
+import { say } from "../../_lib/src/say";
 
 // Vencord switches off Discord's idle timers. Phoenix's timers can't be reached from a plugin, so
 // this works around what starts them instead:
@@ -137,7 +139,7 @@ if (voiceSig) {
           held.set(s.user_id, { ...s });
           redraw(s.user_id);
           phoenix.log.info(`disable-call-idle: keeping ${s.user_id} in the call so it doesn't time out`);
-          if (settings.notify) phoenix.ui.toast("👻 Kept them in the call so you don't drop");
+          if (settings.notify) say("👻 Kept them in the call so you don't drop", current!.channel, "call-idle");
           // Keep them in the call, muted and deafened, so it's clear they're not really there.
           return {
             ...(lastState.get(s.user_id) ?? {}),

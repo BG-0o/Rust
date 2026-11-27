@@ -1,8 +1,19 @@
 // @description Marks every server as read at once
-// @version 1.0.0
+// @version 1.1.0
 // @author kemo · Rust by BG_0o
 "use strict";
 (() => {
+  // _lib/src/say.ts
+  function say(text, channelId, author = "Sunbird") {
+    phoenix.ui.toast(text);
+    if (!channelId) return;
+    try {
+      phoenix.messages.addLocal(channelId, text, { author });
+    } catch (err) {
+      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
+    }
+  }
+
   // read-all/src/index.ts
   var guilds = /* @__PURE__ */ new Set();
   var remember = (g) => {
@@ -25,18 +36,19 @@
   }).catch(() => {
   });
   var running = false;
-  async function readAll() {
+  async function readAll(channel) {
+    const tell = (m) => say(m, channel, "readall");
     if (running) {
-      phoenix.ui.toast("Already marking\u2026");
+      tell("Already marking\u2026");
       return;
     }
     const ids = [...guilds];
     if (ids.length === 0) {
-      phoenix.ui.toast("Servers still loading, try again in a moment");
+      tell("Servers still loading, try again in a moment");
       return;
     }
     running = true;
-    phoenix.ui.toast(`Marking ${ids.length} servers as read\u2026`);
+    tell(`Marking ${ids.length} servers as read\u2026`);
     let done = 0;
     let failed = 0;
     try {
@@ -45,21 +57,21 @@
           const res = await phoenix.discord.post(`/guilds/${id}/ack`, {});
           if (res.ok) done++;
           else if (res.status === 429) {
-            phoenix.ui.toast(`Discord asked to slow down after ${done} servers. Try again in a minute`);
+            tell(`Discord asked to slow down after ${done} servers. Try again in a minute`);
             return;
           } else failed++;
         } catch {
           failed++;
         }
       }
-      phoenix.ui.toast(failed ? `\u2705 ${done} servers read (${failed} failed)` : `\u2705 ${done} servers read`);
+      tell(failed ? `\u2705 ${done} servers read (${failed} failed)` : `\u2705 ${done} servers read`);
     } finally {
       running = false;
     }
   }
-  phoenix.messages.onSend((text) => {
+  phoenix.messages.onSend((text, ctx) => {
     if (text.trim().toLowerCase() !== "!readall") return;
-    void readAll();
+    void readAll(ctx?.channelId);
     return false;
   });
   var settings = phoenix.settings.define({
@@ -79,7 +91,7 @@
   phoenix.ui.addMessageAction({
     label: "Mark all as read",
     visible: () => settings.inMenu,
-    onPress: () => void readAll()
+    onPress: (ctx) => void readAll(ctx.channelId ?? ctx.message?.channel_id)
   });
   phoenix.log.info("read-all loaded");
 })();
