@@ -1,11 +1,12 @@
 // @description Double-click to reply/edit, plus "Delete now" in the menu
 // @version 1.1.0
 // @author Vendicated · Rust by BG_0o
+// @permissions hooks
 // @discord DELETE /channels/*/messages/*
 // @ui-tree
 "use strict";
 (() => {
-  // message-click-actions/src/index.ts
+  // plugins/message-click-actions/src/index.ts
   var settings = phoenix.settings.define({
     reply: {
       type: "switch",

@@ -1,10 +1,11 @@
 // @description "Show embeds" in the menu brings back removed link previews
 // @version 1.1.0
 // @author Ven · Rust by BG_0o
+// @permissions discord
 // @discord PATCH /channels/*/messages/*
 "use strict";
 (() => {
-  // unsuppress-embeds/src/index.ts
+  // plugins/unsuppress-embeds/src/index.ts
   var SUPPRESS_EMBEDS = 1 << 2;
   var flagsOf = (m) => typeof m?.flags === "number" ? m.flags : 0;
   phoenix.ui.addMessageAction({

@@ -1,4 +1,5 @@
 import { say } from "../../_lib/src/say";
+import { firstTime } from "../../_lib/src/once";
 
 // When hidden it does two things:
 // 1. Turns off the account's "Share detected activities" (the setting Vencord uses).
@@ -59,6 +60,7 @@ function set(value: boolean, notify: boolean, channel?: string | null) {
 
 phoenix.messages.onSend((text, ctx) => {
   if (text.trim().toLowerCase() !== "!game") return;
+  if (!firstTime(text, ctx?.channelId)) return false;
   set(!visible, true, ctx?.channelId);
   return false;
 });

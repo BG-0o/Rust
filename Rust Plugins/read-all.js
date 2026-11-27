@@ -1,24 +1,31 @@
 // @description Marks every server as read at once
-// @version 1.2.0
+// @version 1.2.1
 // @author kemo · Rust by BG_0o
+// @permissions gateway discord messages
 // @gateway ready guildCreate guildDelete
 // @discord POST /guilds/*/ack
 // @stores
 // @messages
 "use strict";
 (() => {
-  // _lib/src/say.ts
-  function say(text, channelId, author = "Sunbird") {
+  // plugins/_lib/src/say.ts
+  function say(text, _channelId, _author = "Sunbird") {
     phoenix.ui.toast(text);
-    if (!channelId) return;
-    try {
-      phoenix.messages.addLocal(channelId, text, { author });
-    } catch (err) {
-      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
-    }
   }
 
-  // read-all/src/index.ts
+  // plugins/_lib/src/once.ts
+  var WINDOW_MS = 2e4;
+  var seen = /* @__PURE__ */ new Map();
+  function firstTime(text, channelId) {
+    const now = Date.now();
+    for (const [key2, at] of seen) if (now - at > WINDOW_MS) seen.delete(key2);
+    const key = `${channelId ?? ""}\0${text.trim().toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.set(key, now);
+    return true;
+  }
+
+  // plugins/read-all/src/index.ts
   var guilds = /* @__PURE__ */ new Set();
   var remember = (g) => {
     const id = g?.id;
@@ -75,6 +82,7 @@
   }
   phoenix.messages.onSend((text, ctx) => {
     if (text.trim().toLowerCase() !== "!readall") return;
+    if (!firstTime(text, ctx?.channelId)) return false;
     void readAll(ctx?.channelId);
     return false;
   });

@@ -1,9 +1,6 @@
 export default {
    description: "Renames the files you upload",
-   version: "1.2.0",
+   version: "1.2.1",
    author: "fawn · Rust by BG_0o",
-   permissions: {
-      discord: ["POST /channels/*/messages"],
-      messages: true,
-   },
+   permissions: ["discord", "messages"],
 } satisfies Phoenix.Manifest;

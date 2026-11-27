@@ -10,6 +10,7 @@
 //   !<prefix> [field] clear          empties a list override
 
 import { say } from "./say";
+import { firstTime } from "./once";
 
 export type Kind = "text" | "number" | "list";
 export interface Field {
@@ -82,6 +83,7 @@ export function commands<S extends object>(
     const trimmed = text.trim();
     if (trimmed.toLowerCase() !== cmd && !trimmed.toLowerCase().startsWith(`${cmd} `)) return;
 
+    if (!firstTime(trimmed, ctx?.channelId)) return false;
     const rest = trimmed.slice(cmd.length).trim();
     if (!rest) {
       reply(summary());

@@ -4,9 +4,12 @@ TypeScript sources, laid out like Sunbird's own repo: `plugins/<name>/manifest.t
 version, author and **permissions**) and `plugins/<name>/src/index.ts`. The `.js` files are these
 bundled as IIFEs with the manifest written as the `// @` banner (Sunbird only installs bundles).
 
-Since Sunbird 0.1.1 a plugin only gets what its banner declares (`@gateway`, `@gateway-send`,
-`@discord`, `@stores`, `@messages`, `@ui-tree`); anything else is missing or refused. Each
-`manifest.ts` lists exactly what that plugin uses.
+Sunbird gives a plugin only what its banner declares. Since 27 Nov 2026 (evening) that's one
+`// @permissions` line with up to five grants (`gateway`, `discord`, `http`, `messages`, `hooks`),
+taken from `manifest.ts`. Builds from earlier that day read per-route lines instead (`@gateway`,
+`@gateway-send`, `@discord`, `@stores`, `@messages`, `@ui-tree`), kept in
+`plugins/_lib/legacy-permissions.json`. Each runtime ignores the other's lines, so the bundles carry
+both and load on either.
 
 ## API types
 
@@ -17,7 +20,7 @@ To type-check, copy the `plugins/` folders into a Sunbird checkout and run `tsc 
 ## Build
 
 Copy `plugins/` into a Sunbird checkout and run `node web/tools/bundle-plugins.ts`, or use
-`build.mjs` here (same banner): `node build.mjs <outdir> <plugin names…>`.
+`build.mjs` here (writes both permission formats): `node build.mjs <outdir> <plugin names…>`.
 
 ## Known limits
 
@@ -54,9 +57,12 @@ page until it's cleared, and is kept in the plugin's storage. The message itself
 `!<cmd>` alone shows the current values, `!<cmd> help` lists the fields, `<field> clear` (text/number) or
 `<field> reset` (list) goes back to the settings page value.
 
+## Retries (`plugins/_lib/src/once.ts`)
+
+When a plugin cancels a send, Phoenix takes it for a network failure and retries the same message, so
+a `!command` ran twice (e.g. `!game` hid then showed the game). Each command now acts once per
+channel and text within 20 seconds; the retries are still cancelled.
+
 ## Replies (`plugins/_lib/src/say.ts`)
 
-On Phoenix builds where Sunbird's overlay doesn't draw (the same one the "Edit" box uses), pop-ups
-(`phoenix.ui.toast` / `notify`) are invisible. Commands, menu actions and a few alerts therefore also
-answer with a message only you see (`phoenix.messages.addLocal`) in the channel you used them in.
-keyword-notify's "Mark in chat" and voice-join-messages' "Both" are on by default for the same reason.
+Pop-ups again (Sunbird fixed its overlay); before that this also posted a local message.

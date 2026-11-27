@@ -1,22 +1,29 @@
 // @description Send messages without notifying anyone, like @silent
-// @version 1.2.0
+// @version 1.2.1
 // @author Nuckyz, CatNoir · Rust by BG_0o
+// @permissions discord messages
 // @discord POST /channels/*/messages
 // @messages
 "use strict";
 (() => {
-  // _lib/src/say.ts
-  function say(text, channelId, author = "Sunbird") {
+  // plugins/_lib/src/say.ts
+  function say(text, _channelId, _author = "Sunbird") {
     phoenix.ui.toast(text);
-    if (!channelId) return;
-    try {
-      phoenix.messages.addLocal(channelId, text, { author });
-    } catch (err) {
-      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
-    }
   }
 
-  // silent-messages/src/index.ts
+  // plugins/_lib/src/once.ts
+  var WINDOW_MS = 2e4;
+  var seen = /* @__PURE__ */ new Map();
+  function firstTime(text, channelId) {
+    const now = Date.now();
+    for (const [key2, at] of seen) if (now - at > WINDOW_MS) seen.delete(key2);
+    const key = `${channelId ?? ""}\0${text.trim().toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.set(key, now);
+    return true;
+  }
+
+  // plugins/silent-messages/src/index.ts
   var SUPPRESS_NOTIFICATIONS = 1 << 12;
   var KEY = "on";
   var on = phoenix.storage.get(KEY) ?? false;
@@ -56,6 +63,7 @@
   });
   phoenix.messages.onSend((text, ctx) => {
     if (text.trim().toLowerCase() !== "!silent") return;
+    if (!firstTime(text, ctx?.channelId)) return false;
     toggle(ctx?.channelId);
     return false;
   });

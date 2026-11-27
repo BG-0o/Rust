@@ -1,10 +1,11 @@
 // @description Removes extra indentation from code blocks before sending
 // @version 1.1.0
 // @author Ven · Rust by BG_0o
+// @permissions messages
 // @messages
 "use strict";
 (() => {
-  // unindent/src/index.ts
+  // plugins/unindent/src/index.ts
   var BLOCK = /```([^\n`]*)\n([\s\S]*?)```/g;
   function unindent(code) {
     const lines = code.replace(/\t/g, "    ").split("\n");

@@ -32,7 +32,7 @@ const settings = commands(
       { value: "dm", label: "Note in their DM (only you see it)" },
       { value: "both", label: "Both" },
     ],
-    default: "both",
+    default: "popup",
   },
   leaves: { type: "switch", title: "Also when they leave", default: false },
   sameCall: {

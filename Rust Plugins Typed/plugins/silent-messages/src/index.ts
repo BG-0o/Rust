@@ -1,4 +1,5 @@
 import { say } from "../../_lib/src/say";
+import { firstTime } from "../../_lib/src/once";
 
 const SUPPRESS_NOTIFICATIONS = 1 << 12;
 const KEY = "on";
@@ -46,6 +47,7 @@ phoenix.ui.addMessageAction({
 
 phoenix.messages.onSend((text, ctx) => {
   if (text.trim().toLowerCase() !== "!silent") return;
+  if (!firstTime(text, ctx?.channelId)) return false;
   toggle(ctx?.channelId);
   return false;
 });

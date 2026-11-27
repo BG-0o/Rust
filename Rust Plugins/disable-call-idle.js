@@ -1,6 +1,7 @@
 // @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.11.0
+// @version 0.11.1
 // @author Nuckyz · Rust by BG_0o
+// @permissions hooks
 // @gateway ready guildCreate guildUpdate initialGuild voiceStateUpdate callCreate callUpdate
 // @gateway-send 4
 // @discord GET /users/@me
@@ -8,18 +9,12 @@
 // @messages
 "use strict";
 (() => {
-  // _lib/src/say.ts
-  function say(text, channelId, author = "Sunbird") {
+  // plugins/_lib/src/say.ts
+  function say(text, _channelId, _author = "Sunbird") {
     phoenix.ui.toast(text);
-    if (!channelId) return;
-    try {
-      phoenix.messages.addLocal(channelId, text, { author });
-    } catch (err) {
-      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
-    }
   }
 
-  // disable-call-idle/src/index.ts
+  // plugins/disable-call-idle/src/index.ts
   var settings = phoenix.settings.define({
     dm: {
       type: "switch",

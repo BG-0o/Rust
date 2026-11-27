@@ -1,9 +1,6 @@
 export default {
    description: "Send messages without notifying anyone, like @silent",
-   version: "1.2.0",
+   version: "1.2.1",
    author: "Nuckyz, CatNoir · Rust by BG_0o",
-   permissions: {
-      discord: ["POST /channels/*/messages"],
-      messages: true,
-   },
+   permissions: ["discord", "messages"],
 } satisfies Phoenix.Manifest;

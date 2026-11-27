@@ -1,6 +1,7 @@
 // @description Hides images and videos in NSFW channels behind a spoiler
-// @version 1.2.0
+// @version 1.2.1
 // @author Vendicated · Rust by BG_0o
+// @permissions gateway discord messages
 // @gateway ready guildCreate initialGuild channelCreate channelUpdate threadCreate threadUpdate messageCreate messageUpdate
 // @discord GET /channels/*
 // @discord GET /channels/*/messages
@@ -8,18 +9,24 @@
 // @messages
 "use strict";
 (() => {
-  // _lib/src/say.ts
-  function say(text, channelId, author = "Sunbird") {
+  // plugins/_lib/src/say.ts
+  function say(text, _channelId, _author = "Sunbird") {
     phoenix.ui.toast(text);
-    if (!channelId) return;
-    try {
-      phoenix.messages.addLocal(channelId, text, { author });
-    } catch (err) {
-      phoenix.log.warn(`couldn't add a local message: ${String(err)}`);
-    }
   }
 
-  // _lib/src/commands.ts
+  // plugins/_lib/src/once.ts
+  var WINDOW_MS = 2e4;
+  var seen = /* @__PURE__ */ new Map();
+  function firstTime(text, channelId) {
+    const now = Date.now();
+    for (const [key2, at] of seen) if (now - at > WINDOW_MS) seen.delete(key2);
+    const key = `${channelId ?? ""}\0${text.trim().toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.set(key, now);
+    return true;
+  }
+
+  // plugins/_lib/src/commands.ts
   var SPLIT = /\r?\n|,/;
   var STORE = (key) => `cmd:${key}`;
   var short = (s, n = 60) => s.length > n ? `${s.slice(0, n - 1)}\u2026` : s;
@@ -60,6 +67,7 @@
       const reply = (m) => say(m, ctx?.channelId, cmd);
       const trimmed = text.trim();
       if (trimmed.toLowerCase() !== cmd && !trimmed.toLowerCase().startsWith(`${cmd} `)) return;
+      if (!firstTime(trimmed, ctx?.channelId)) return false;
       const rest = trimmed.slice(cmd.length).trim();
       if (!rest) {
         reply(summary());
@@ -138,7 +146,7 @@
     return view;
   }
 
-  // blur-nsfw/src/index.ts
+  // plugins/blur-nsfw/src/index.ts
   var IS_SPOILER = 1 << 3;
   var settings = commands(
     phoenix.settings.define({

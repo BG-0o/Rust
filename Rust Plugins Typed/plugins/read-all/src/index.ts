@@ -1,4 +1,5 @@
 import { say } from "../../_lib/src/say";
+import { firstTime } from "../../_lib/src/once";
 
 const guilds = new Set<string>();
 
@@ -65,6 +66,7 @@ async function readAll(channel?: string | null) {
 
 phoenix.messages.onSend((text, ctx) => {
   if (text.trim().toLowerCase() !== "!readall") return;
+  if (!firstTime(text, ctx?.channelId)) return false;
   void readAll(ctx?.channelId);
   return false;
 });

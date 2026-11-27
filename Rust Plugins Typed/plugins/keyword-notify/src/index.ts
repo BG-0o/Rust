@@ -31,8 +31,8 @@ const settings = commands(
   markInChat: {
     type: "switch",
     title: "Mark in chat",
-    description: "Adds a note only you see under the message (pop-ups don't show on some builds)",
-    default: true,
+    description: "Adds a note only you see under the message",
+    default: false,
   },
   }),
   "kw",

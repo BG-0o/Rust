@@ -1,13 +1,14 @@
 // @description Hides Discord Quests
 // @version 1.2.0
 // @author Equicord · Rust by BG_0o
+// @permissions gateway discord
 // @gateway questsUserStatusUpdate questsNewQuests questsUserCompletionUpdate
 // @discord GET /quests
 // @discord GET /quests/**
 // @discord GET /users/@me/quests/**
 "use strict";
 (() => {
-  // questify/src/index.ts
+  // plugins/questify/src/index.ts
   var settings = phoenix.settings.define({
     enabled: {
       type: "switch",
