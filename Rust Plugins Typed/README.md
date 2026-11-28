@@ -32,8 +32,8 @@ Copy `plugins/` into a Sunbird checkout and run `node web/tools/bundle-plugins.t
   "Log quest requests" to see which quest calls Phoenix makes.
 - **i-love-spam**: clears `1 << 20` from `author.public_flags` / `author.flags` on MESSAGE_CREATE,
   MESSAGE_UPDATE and message history. Untested against a real flagged account.
-- **disable-call-idle** (beta): holds the last person's leave in a DM call and replays it via
-  `phoenix.enqueue` when you leave. Doesn't help with calls nobody answered.
+- **disable-call-idle** was removed: Sunbird now ships an official one built on
+  `phoenix.ui.disableCallIdle`.
 
 ## Chat commands (`plugins/_lib/src/commands.ts`)
 

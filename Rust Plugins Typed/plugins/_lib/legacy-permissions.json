@@ -40,25 +40,6 @@
       "GET /oauth2/applications/*/assets"
     ]
   },
-  "disable-call-idle": {
-    "gateway": [
-      "ready",
-      "guildCreate",
-      "guildUpdate",
-      "initialGuild",
-      "voiceStateUpdate",
-      "callCreate",
-      "callUpdate"
-    ],
-    "gatewaySend": [
-      4
-    ],
-    "discord": [
-      "GET /users/@me"
-    ],
-    "stores": true,
-    "messages": true
-  },
   "game-activity-toggle": {
     "gatewaySend": [
       3
