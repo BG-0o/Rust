@@ -1,5 +1,5 @@
-// @description Don't get dropped from DM calls or moved to AFK · Desktop · beta
-// @version 0.11.1
+// @description Don't get dropped from DM calls or moved to AFK · Desktop
+// @version 1.0.0
 // @author Nuckyz · Rust by BG_0o
 // @permissions hooks
 // @gateway ready guildCreate guildUpdate initialGuild voiceStateUpdate callCreate callUpdate
@@ -15,27 +15,41 @@
   }
 
   // plugins/disable-call-idle/src/index.ts
+  var native = phoenix.ui.disableCallIdle;
+  var holds = /* @__PURE__ */ new Map();
+  function sync(timer, off) {
+    const restore = holds.get(timer);
+    if (off && !restore && native) holds.set(timer, native(timer));
+    else if (!off && restore) {
+      restore();
+      holds.delete(timer);
+    }
+  }
   var settings = phoenix.settings.define({
     dm: {
       type: "switch",
       title: "Stay in DM calls",
-      description: "Whoever leaves stays in the call (only for you), muted and deafened",
-      default: true
+      description: native ? "Discord won't drop you after 3 minutes alone" : "Whoever leaves stays in the call (only for you), muted and deafened",
+      default: true,
+      onChange: (on) => sync("dmCall", on)
     },
     marker: {
       type: "switch",
       title: "Mark with \u{1F47B}",
-      description: "In the DM list, who is being held",
+      description: "Older Sunbird only: in the DM list, who is being held",
       default: true
     },
-    notify: { type: "switch", title: "Pop-up when holding someone", default: true },
+    notify: { type: "switch", title: "Pop-up when holding someone", description: "Older Sunbird only", default: true },
     afk: {
       type: "switch",
       title: "Block AFK moves",
-      description: "In servers. Also blocks joining AFK on purpose",
-      default: true
+      description: native ? "In servers, Discord won't move or disconnect you for being idle" : "In servers. Also blocks joining AFK on purpose",
+      default: true,
+      onChange: (on) => sync("guildAfk", on)
     }
   });
+  sync("dmCall", settings.dm);
+  sync("guildAfk", settings.afk);
   var me = null;
   var current = null;
   var members = /* @__PURE__ */ new Map();
@@ -77,7 +91,7 @@
       lastState.set(s.user_id, { ...s });
     }
   }
-  if (voiceSig) {
+  if (voiceSig && !native) {
     phoenix.hook(voiceSig, {
       before(p) {
         const s = p;
@@ -124,7 +138,7 @@
         track(s);
       }
     });
-  } else {
+  } else if (!native) {
     phoenix.log.warn("disable-call-idle: this Discord build has no voiceStateUpdate event; DM part is off");
   }
   for (const name of ["callCreate", "callUpdate"]) {
@@ -147,7 +161,7 @@
     const sig = gateway[name];
     if (sig) phoenix.on(sig, rememberGuild);
   }
-  phoenix.stores.sql("SELECT CAST(v AS TEXT) AS v FROM guilds").then((rows) => {
+  phoenix.stores?.sql("SELECT CAST(v AS TEXT) AS v FROM guilds").then((rows) => {
     for (const { v } of rows) {
       try {
         rememberGuild(JSON.parse(v));
@@ -157,7 +171,7 @@
   }).catch(() => {
   });
   phoenix.gateway.onSend(4, (payload) => {
-    if (!payload) return;
+    if (!payload || native) return;
     const guild = payload.guild_id ?? null;
     const target = payload.channel_id ?? null;
     if (settings.afk && guild && target && current && current.guild === guild && current.channel !== target && afkChannels.get(guild) === target) {
@@ -174,8 +188,10 @@
     }
   });
   phoenix.onUnload(() => {
+    for (const restore of holds.values()) restore();
+    holds.clear();
     releaseHeld();
     decoration?.();
   });
-  phoenix.log.info("disable-call-idle loaded");
+  phoenix.log.info(`disable-call-idle loaded (${native ? "native timers off" : "workaround"})`);
 })();

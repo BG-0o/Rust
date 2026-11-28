@@ -10,27 +10,46 @@ import { say } from "../../_lib/src/say";
 // - Servers: when the app tries to move you to the AFK channel, the move is turned into
 //   "stay where I am", so Discord keeps you in your channel.
 
+// Sunbird 0.3.1+ turns Discord's own timers off (phoenix.ui.disableCallIdle), which works in every
+// case, even a call nobody answered. The workaround below only runs on older Sunbird builds.
+const native = phoenix.ui.disableCallIdle;
+const holds = new Map<"dmCall" | "guildAfk", Phoenix.Remover>();
+function sync(timer: "dmCall" | "guildAfk", off: boolean) {
+  const restore = holds.get(timer);
+  if (off && !restore && native) holds.set(timer, native(timer));
+  else if (!off && restore) {
+    restore();
+    holds.delete(timer);
+  }
+}
+
 const settings = phoenix.settings.define({
   dm: {
     type: "switch",
     title: "Stay in DM calls",
-    description: "Whoever leaves stays in the call (only for you), muted and deafened",
+    description: native
+      ? "Discord won't drop you after 3 minutes alone"
+      : "Whoever leaves stays in the call (only for you), muted and deafened",
     default: true,
+    onChange: (on) => sync("dmCall", on),
   },
   marker: {
     type: "switch",
     title: "Mark with 👻",
-    description: "In the DM list, who is being held",
+    description: "Older Sunbird only: in the DM list, who is being held",
     default: true,
   },
-  notify: { type: "switch", title: "Pop-up when holding someone", default: true },
+  notify: { type: "switch", title: "Pop-up when holding someone", description: "Older Sunbird only", default: true },
   afk: {
     type: "switch",
     title: "Block AFK moves",
-    description: "In servers. Also blocks joining AFK on purpose",
+    description: native ? "In servers, Discord won't move or disconnect you for being idle" : "In servers. Also blocks joining AFK on purpose",
     default: true,
+    onChange: (on) => sync("guildAfk", on),
   },
 });
+sync("dmCall", settings.dm);
+sync("guildAfk", settings.afk);
 
 type VoiceState = {
   user_id?: string;
@@ -97,7 +116,7 @@ function track(s: VoiceState) {
 }
 
 // --- Incoming voice states ---------------------------------------------------------------
-if (voiceSig) {
+if (voiceSig && !native) {
   phoenix.hook(voiceSig, {
     before(p) {
       const s = p as VoiceState;
@@ -152,7 +171,7 @@ if (voiceSig) {
       track(s);
     },
   });
-} else {
+} else if (!native) {
   phoenix.log.warn("disable-call-idle: this Discord build has no voiceStateUpdate event; DM part is off");
 }
 
@@ -186,7 +205,7 @@ for (const name of ["guildCreate", "guildUpdate", "initialGuild"]) {
   if (sig) phoenix.on(sig, rememberGuild);
 }
 phoenix.stores
-  .sql<{ v: string }>("SELECT CAST(v AS TEXT) AS v FROM guilds")
+  ?.sql<{ v: string }>("SELECT CAST(v AS TEXT) AS v FROM guilds")
   .then((rows) => {
     for (const { v } of rows) {
       try {
@@ -198,7 +217,7 @@ phoenix.stores
 
 // --- Outgoing voice state updates (op 4) -----------------------------------------------------
 phoenix.gateway.onSend<Phoenix.VoiceStateUpdate>(4, (payload) => {
-  if (!payload) return;
+  if (!payload || native) return;
   const guild = payload.guild_id ?? null;
   const target = payload.channel_id ?? null;
 
@@ -226,8 +245,10 @@ phoenix.gateway.onSend<Phoenix.VoiceStateUpdate>(4, (payload) => {
 });
 
 phoenix.onUnload(() => {
+  for (const restore of holds.values()) restore();
+  holds.clear();
   releaseHeld();
   decoration?.();
 });
 
-phoenix.log.info("disable-call-idle loaded");
+phoenix.log.info(`disable-call-idle loaded (${native ? "native timers off" : "workaround"})`);
