@@ -1,8 +1,10 @@
 // @description Double-click to reply/edit, plus "Delete now" in the menu
-// @version 1.2.0
+// @version 1.3.0
 // @author Vendicated · Rust by BG_0o
 // @permissions hooks
 // @discord DELETE /channels/*/messages/*
+// @discord PATCH /channels/*/messages/*
+// @messages
 // @ui-tree
 "use strict";
 (() => {
@@ -17,14 +19,14 @@
     own: {
       type: "select",
       title: "Double-click on my message",
-      description: "Edit crashes Discord on some builds (a Sunbird bug), so it's off by default",
+      description: "On PC, Edit means: type the new text and press Enter",
       options: [
         { value: "none", label: "Nothing" },
         { value: "reply", label: "Reply" },
         { value: "delete", label: "Delete (no confirmation)" },
-        { value: "edit", label: "Edit (may crash Discord)" }
+        { value: "edit", label: "Edit" }
       ],
-      default: "none"
+      default: "edit"
     },
     deleteNow: {
       type: "switch",
@@ -44,6 +46,34 @@
     danger: true,
     visible: (ctx) => settings.deleteNow && ctx.currentUserId != null && ctx.message?.author?.id === ctx.currentUserId,
     onPress: (ctx) => deleteMessage(ctx.channelId ?? ctx.message?.channel_id, ctx.messageId)
+  });
+  var ARM_MS = 12e4;
+  var armed = null;
+  var lastEdit = null;
+  function armEdit(channelId, messageId) {
+    if (!channelId) return;
+    if (armed?.messageId === messageId) {
+      armed = null;
+      phoenix.ui.toast("Edit cancelled");
+      return;
+    }
+    armed = { channelId, messageId, until: Date.now() + ARM_MS };
+    phoenix.ui.toast("\u270F\uFE0F Type the new text and press Enter \xB7 double-click again to cancel");
+  }
+  phoenix.messages.onSend((text, ctx) => {
+    const now = Date.now();
+    if (lastEdit && lastEdit.channelId === ctx?.channelId && lastEdit.text === text && now - lastEdit.at < 2e4) {
+      return false;
+    }
+    if (!armed || now > armed.until || armed.channelId !== ctx?.channelId) {
+      if (armed && now > armed.until) armed = null;
+      return;
+    }
+    const { channelId, messageId } = armed;
+    armed = null;
+    lastEdit = { channelId, text, at: now };
+    phoenix.discord.patch(`/channels/${channelId}/messages/${messageId}`, { content: text }).then((res) => phoenix.ui.toast(res.ok ? "Edited" : `Couldn't edit (${res.status})`)).catch(() => phoenix.ui.toast("Couldn't edit"));
+    return false;
   });
   phoenix.ui.patchProps({ prefix: "message.content:" }, { addOn: ["rowDoubleTap"] }, { target: "list" });
   var pending = null;
@@ -72,6 +102,10 @@
         if (mode === "none") return false;
         if (mode === "delete") {
           deleteMessage(ev.channelId ?? ev.message?.channel_id, ev.messageId);
+          return true;
+        }
+        if (mode === "edit" && ev.press) {
+          armEdit(ev.channelId ?? ev.message?.channel_id, ev.messageId);
           return true;
         }
         run(ev, mode === "edit" ? "message.actions.edit" : "message.actions.reply");

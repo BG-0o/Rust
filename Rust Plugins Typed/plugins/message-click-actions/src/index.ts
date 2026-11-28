@@ -8,14 +8,14 @@ const settings = phoenix.settings.define({
   own: {
     type: "select",
     title: "Double-click on my message",
-    description: "Edit crashes Discord on some builds (a Sunbird bug), so it's off by default",
+    description: "On PC, Edit means: type the new text and press Enter",
     options: [
       { value: "none", label: "Nothing" },
       { value: "reply", label: "Reply" },
       { value: "delete", label: "Delete (no confirmation)" },
-      { value: "edit", label: "Edit (may crash Discord)" },
+      { value: "edit", label: "Edit" },
     ],
-    default: "none",
+    default: "edit",
   },
   deleteNow: {
     type: "switch",
@@ -42,6 +42,45 @@ phoenix.ui.addMessageAction({
   visible: (ctx) =>
     settings.deleteNow && ctx.currentUserId != null && ctx.message?.author?.id === ctx.currentUserId,
   onPress: (ctx) => deleteMessage(ctx.channelId ?? ctx.message?.channel_id, ctx.messageId),
+});
+
+// --- Edit on PC -----------------------------------------------------------------------------
+// Pressing Discord's own Edit from a double-click crashes desktop Phoenix (a Sunbird bug), so on
+// PC the double-click arms an edit instead: the next message you send in that channel replaces
+// the text of the one you clicked, and isn't sent as a new one.
+const ARM_MS = 120_000;
+let armed: { channelId: string; messageId: string; until: number } | null = null;
+// Phoenix sends a cancelled message again; its repeat is dropped too.
+let lastEdit: { channelId: string; text: string; at: number } | null = null;
+
+function armEdit(channelId: string | null | undefined, messageId: string) {
+  if (!channelId) return;
+  if (armed?.messageId === messageId) {
+    armed = null;
+    phoenix.ui.toast("Edit cancelled");
+    return;
+  }
+  armed = { channelId, messageId, until: Date.now() + ARM_MS };
+  phoenix.ui.toast("✏️ Type the new text and press Enter · double-click again to cancel");
+}
+
+phoenix.messages.onSend((text, ctx) => {
+  const now = Date.now();
+  if (lastEdit && lastEdit.channelId === ctx?.channelId && lastEdit.text === text && now - lastEdit.at < 20_000) {
+    return false;
+  }
+  if (!armed || now > armed.until || armed.channelId !== ctx?.channelId) {
+    if (armed && now > armed.until) armed = null;
+    return;
+  }
+  const { channelId, messageId } = armed;
+  armed = null;
+  lastEdit = { channelId, text, at: now };
+  phoenix.discord
+    .patch(`/channels/${channelId}/messages/${messageId}`, { content: text })
+    .then((res) => phoenix.ui.toast(res.ok ? "Edited" : `Couldn't edit (${res.status})`))
+    .catch(() => phoenix.ui.toast("Couldn't edit"));
+  return false;
 });
 
 // --- Clique duplo ----------------------------------------------------------------------------
@@ -77,6 +116,10 @@ phoenix.ui.onEvent(
       if (mode === "none") return false;
       if (mode === "delete") {
         deleteMessage(ev.channelId ?? ev.message?.channel_id, ev.messageId);
+        return true;
+      }
+      if (mode === "edit" && ev.press) {
+        armEdit(ev.channelId ?? ev.message?.channel_id, ev.messageId);
         return true;
       }
       run(ev, mode === "edit" ? "message.actions.edit" : "message.actions.reply");

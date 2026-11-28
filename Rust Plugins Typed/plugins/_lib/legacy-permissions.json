@@ -88,9 +88,11 @@
   },
   "message-click-actions": {
     "discord": [
-      "DELETE /channels/*/messages/*"
+      "DELETE /channels/*/messages/*",
+      "PATCH /channels/*/messages/*"
     ],
-    "uiTree": true
+    "uiTree": true,
+    "messages": true
   },
   "no-idle": {
     "gatewaySend": [

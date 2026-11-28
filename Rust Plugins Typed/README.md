@@ -26,7 +26,9 @@ Copy `plugins/` into a Sunbird checkout and run `node web/tools/bundle-plugins.t
 
 - **message-click-actions**: the double-click relies on Sunbird's `rowDoubleTap`, measured on Phoenix
   build 2233. On older builds a double-click just selects text. "Delete now" (right-click menu) doesn't
-  depend on it.
+  depend on it. On PC, pressing Discord's Edit from a double-click crashes Phoenix (Sunbird's
+  `press_item`), so there a double-click on your message arms an edit: the next message you send in
+  that channel is cancelled and `PATCH`ed onto the clicked one instead.
 - **questify** (1.1.0): empties quest lists in every `GET` whose path includes `quest` and drops live
   quest events. The sidebar "Quests" entry is drawn natively and can't be removed on desktop. Turn on
   "Log quest requests" to see which quest calls Phoenix makes.
