@@ -1,8 +1,10 @@
 // @description Custom "Playing…" activity on your status · Desktop
-// @version 1.2.1
+// @version 1.3.0
 // @author Vencord · Rust by BG_0o
 // @permissions hooks
 // @gateway-send 3
+// @discord POST /applications/*/external-assets
+// @discord GET /oauth2/applications/*/assets
 // @messages
 "use strict";
 (() => {
@@ -178,9 +180,26 @@
       applicationId: {
         type: "text",
         title: "Application ID",
-        description: "Optional, from the Developer Portal, for an icon \xB7 !rpc app <value>",
+        onChange: () => void resolveAll(),
+        description: "Needed for pictures: discord.com/developers \u2192 New Application \u2192 copy its ID \xB7 !rpc app <value>",
         default: ""
       },
+      largeImage: {
+        type: "text",
+        title: "Big picture",
+        onChange: () => void resolveAll(),
+        description: "Image URL or an asset name of your app (needs Application ID) \xB7 !rpc image <value>",
+        default: ""
+      },
+      largeText: { type: "text", title: "Big picture hover text", description: "Optional \xB7 !rpc imagetext <value>", default: "" },
+      smallImage: {
+        type: "text",
+        title: "Small picture",
+        onChange: () => void resolveAll(),
+        description: "Image URL or asset name, shown in the corner \xB7 !rpc small <value>",
+        default: ""
+      },
+      smallText: { type: "text", title: "Small picture hover text", description: "Optional \xB7 !rpc smalltext <value>", default: "" },
       showTime: { type: "switch", title: "Show elapsed time", default: true },
       replaceGames: {
         type: "switch",
@@ -190,8 +209,61 @@
       }
     }),
     "rpc",
-    { name: { key: "name", kind: "text" }, line1: { key: "details", kind: "text" }, line2: { key: "state", kind: "text" }, url: { key: "streamUrl", kind: "text" }, app: { key: "applicationId", kind: "text" } }
+    { name: { key: "name", kind: "text" }, line1: { key: "details", kind: "text" }, line2: { key: "state", kind: "text" }, url: { key: "streamUrl", kind: "text" }, app: { key: "applicationId", kind: "text" }, image: { key: "largeImage", kind: "text" }, imagetext: { key: "largeText", kind: "text" }, small: { key: "smallImage", kind: "text" }, smalltext: { key: "smallText", kind: "text" } },
+    () => void resolveAll()
   );
+  var resolved = new Map(Object.entries(phoenix.storage.get("assets") ?? {}));
+  var pending = /* @__PURE__ */ new Set();
+  var warned = false;
+  function appId() {
+    const id = settings.applicationId.trim();
+    return /^\d{17,20}$/.test(id) ? id : null;
+  }
+  async function resolve(value) {
+    const v = value.trim();
+    const app = appId();
+    if (v && !app) {
+      if (!warned) phoenix.ui.toast("Custom RPC: pictures need an Application ID (Developer Portal \u2192 New Application)");
+      warned = true;
+      return;
+    }
+    const key = `${app}|${v}`;
+    if (!v || v.startsWith("mp:") || /^\d{17,20}$/.test(v) || resolved.has(key) || pending.has(key)) return;
+    pending.add(key);
+    try {
+      if (/^https?:\/\//i.test(v)) {
+        const res = await phoenix.discord.post(`/applications/${app}/external-assets`, { urls: [v] });
+        const path = res.ok ? res.json()[0]?.external_asset_path : void 0;
+        if (path) resolved.set(key, `mp:${path}`);
+        else phoenix.ui.toast(`Custom RPC: couldn't load that image (${res.status})`);
+      } else {
+        const res = await phoenix.discord.get(`/oauth2/applications/${app}/assets`);
+        const list = res.ok ? res.json() : [];
+        const hit = list.find((a) => a.name.toLowerCase() === v.toLowerCase());
+        if (hit) resolved.set(key, hit.id);
+        else phoenix.ui.toast(`Custom RPC: no asset named "${v}" in that app`);
+      }
+      phoenix.storage.set("assets", Object.fromEntries(resolved));
+    } catch (e) {
+      phoenix.log.warn(`custom-rpc: image lookup failed: ${e}`);
+    } finally {
+      pending.delete(key);
+    }
+  }
+  function image(value) {
+    const v = value.trim();
+    if (!v) return void 0;
+    if (!appId()) return void resolve(v);
+    if (v.startsWith("mp:") || /^\d{17,20}$/.test(v)) return v;
+    const hit = resolved.get(`${appId()}|${v}`);
+    if (!hit) void resolve(v);
+    return hit;
+  }
+  async function resolveAll() {
+    await resolve(settings.largeImage);
+    await resolve(settings.smallImage);
+  }
+  void resolveAll();
   function build() {
     const name = settings.name.trim();
     if (!settings.enabled || !name) return null;
@@ -200,7 +272,17 @@
     if (settings.details.trim()) activity.details = settings.details.trim();
     if (settings.state.trim()) activity.state = settings.state.trim();
     if (type === 1 && settings.streamUrl.trim()) activity.url = settings.streamUrl.trim();
-    if (/^\d{17,20}$/.test(settings.applicationId.trim())) activity.application_id = settings.applicationId.trim();
+    const large = image(settings.largeImage);
+    const small = image(settings.smallImage);
+    if (large || small) {
+      const assets = {};
+      if (large) assets.large_image = large;
+      if (large && settings.largeText.trim()) assets.large_text = settings.largeText.trim();
+      if (small) assets.small_image = small;
+      if (small && settings.smallText.trim()) assets.small_text = settings.smallText.trim();
+      activity.assets = assets;
+      activity.application_id = appId();
+    } else if (/^\d{17,20}$/.test(settings.applicationId.trim())) activity.application_id = settings.applicationId.trim();
     if (settings.showTime) activity.timestamps = { start: startedAt };
     return activity;
   }

@@ -1,23 +1,213 @@
 {
-  "anonymous-files": { "discord": ["POST /channels/*/messages"], "messages": true },
-  "auto-dnd": { "gatewaySend": [3], "messages": true },
-  "blur-nsfw": { "gateway": ["ready","guildCreate","initialGuild","channelCreate","channelUpdate","threadCreate","threadUpdate","messageCreate","messageUpdate"], "discord": ["GET /channels/*","GET /channels/*/messages"], "stores": true, "messages": true },
-  "custom-rpc": { "gatewaySend": [3], "messages": true },
-  "disable-call-idle": { "gateway": ["ready","guildCreate","guildUpdate","initialGuild","voiceStateUpdate","callCreate","callUpdate"], "gatewaySend": [4], "discord": ["GET /users/@me"], "stores": true, "messages": true },
-  "game-activity-toggle": { "gatewaySend": [3], "discord": ["PATCH /users/@me/settings-proto/1"], "messages": true },
-  "i-love-spam": { "gateway": ["messageCreate","messageUpdate"], "discord": ["GET /channels/*/messages"] },
-  "ignore-activities": { "gatewaySend": [3], "messages": true },
-  "ignore-calls": { "gateway": ["callCreate","callUpdate","messageCreate"], "discord": ["GET /users/@me"], "messages": true },
-  "keyword-notify": { "gateway": ["ready","guildCreate","messageCreate"], "discord": ["GET /users/@me"], "messages": true },
-  "message-click-actions": { "discord": ["DELETE /channels/*/messages/*"], "uiTree": true },
-  "no-idle": { "gatewaySend": [3] },
-  "questify": { "gateway": ["questsUserStatusUpdate","questsNewQuests","questsUserCompletionUpdate"], "discord": ["GET /quests","GET /quests/**","GET /users/@me/quests/**"] },
-  "read-all": { "gateway": ["ready","guildCreate","guildDelete"], "discord": ["POST /guilds/*/ack"], "stores": true, "messages": true },
-  "relationship-notifier": { "gateway": ["ready","guildCreate","guildUpdate","channelCreate","channelUpdate","relationshipAdd","relationshipUpdate","relationshipRemove","guildDelete","channelRecipientRemove"], "discord": ["GET /users/@me","DELETE /users/@me/relationships/*","PUT /users/@me/relationships/*","DELETE /users/@me/guilds/*","DELETE /channels/*"], "stores": true },
-  "send-timestamps": { "messages": true },
-  "silent-messages": { "discord": ["POST /channels/*/messages"], "messages": true },
-  "streaks": { "gateway": ["ready","channelCreate","channelUpdate","messageCreate"], "discord": ["GET /users/@me","GET /channels/*","GET /channels/*/messages"], "messages": true },
-  "unindent": { "messages": true },
-  "unsuppress-embeds": { "discord": ["PATCH /channels/*/messages/*"] },
-  "voice-join-messages": { "gateway": ["ready","guildCreate","guildUpdate","relationshipAdd","relationshipUpdate","relationshipRemove","channelCreate","channelUpdate","voiceStateUpdate"], "discord": ["GET /users/@me"], "messages": true }
+  "anonymous-files": {
+    "discord": [
+      "POST /channels/*/messages"
+    ],
+    "messages": true
+  },
+  "auto-dnd": {
+    "gatewaySend": [
+      3
+    ],
+    "messages": true
+  },
+  "blur-nsfw": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "initialGuild",
+      "channelCreate",
+      "channelUpdate",
+      "threadCreate",
+      "threadUpdate",
+      "messageCreate",
+      "messageUpdate"
+    ],
+    "discord": [
+      "GET /channels/*",
+      "GET /channels/*/messages"
+    ],
+    "stores": true,
+    "messages": true
+  },
+  "custom-rpc": {
+    "gatewaySend": [
+      3
+    ],
+    "messages": true,
+    "discord": [
+      "POST /applications/*/external-assets",
+      "GET /oauth2/applications/*/assets"
+    ]
+  },
+  "disable-call-idle": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "guildUpdate",
+      "initialGuild",
+      "voiceStateUpdate",
+      "callCreate",
+      "callUpdate"
+    ],
+    "gatewaySend": [
+      4
+    ],
+    "discord": [
+      "GET /users/@me"
+    ],
+    "stores": true,
+    "messages": true
+  },
+  "game-activity-toggle": {
+    "gatewaySend": [
+      3
+    ],
+    "discord": [
+      "PATCH /users/@me/settings-proto/1"
+    ],
+    "messages": true
+  },
+  "i-love-spam": {
+    "gateway": [
+      "messageCreate",
+      "messageUpdate"
+    ],
+    "discord": [
+      "GET /channels/*/messages"
+    ]
+  },
+  "ignore-activities": {
+    "gatewaySend": [
+      3
+    ],
+    "messages": true
+  },
+  "ignore-calls": {
+    "gateway": [
+      "callCreate",
+      "callUpdate",
+      "messageCreate"
+    ],
+    "discord": [
+      "GET /users/@me"
+    ],
+    "messages": true
+  },
+  "keyword-notify": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "messageCreate"
+    ],
+    "discord": [
+      "GET /users/@me"
+    ],
+    "messages": true
+  },
+  "message-click-actions": {
+    "discord": [
+      "DELETE /channels/*/messages/*"
+    ],
+    "uiTree": true
+  },
+  "no-idle": {
+    "gatewaySend": [
+      3
+    ]
+  },
+  "questify": {
+    "gateway": [
+      "questsUserStatusUpdate",
+      "questsNewQuests",
+      "questsUserCompletionUpdate"
+    ],
+    "discord": [
+      "GET /quests",
+      "GET /quests/**",
+      "GET /users/@me/quests/**"
+    ]
+  },
+  "read-all": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "guildDelete"
+    ],
+    "discord": [
+      "POST /guilds/*/ack"
+    ],
+    "stores": true,
+    "messages": true
+  },
+  "relationship-notifier": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "guildUpdate",
+      "channelCreate",
+      "channelUpdate",
+      "relationshipAdd",
+      "relationshipUpdate",
+      "relationshipRemove",
+      "guildDelete",
+      "channelRecipientRemove"
+    ],
+    "discord": [
+      "GET /users/@me",
+      "DELETE /users/@me/relationships/*",
+      "PUT /users/@me/relationships/*",
+      "DELETE /users/@me/guilds/*",
+      "DELETE /channels/*"
+    ],
+    "stores": true
+  },
+  "send-timestamps": {
+    "messages": true
+  },
+  "silent-messages": {
+    "discord": [
+      "POST /channels/*/messages"
+    ],
+    "messages": true
+  },
+  "streaks": {
+    "gateway": [
+      "ready",
+      "channelCreate",
+      "channelUpdate",
+      "messageCreate"
+    ],
+    "discord": [
+      "GET /users/@me",
+      "GET /channels/*",
+      "GET /channels/*/messages"
+    ],
+    "messages": true
+  },
+  "unindent": {
+    "messages": true
+  },
+  "unsuppress-embeds": {
+    "discord": [
+      "PATCH /channels/*/messages/*"
+    ]
+  },
+  "voice-join-messages": {
+    "gateway": [
+      "ready",
+      "guildCreate",
+      "guildUpdate",
+      "relationshipAdd",
+      "relationshipUpdate",
+      "relationshipRemove",
+      "channelCreate",
+      "channelUpdate",
+      "voiceStateUpdate"
+    ],
+    "discord": [
+      "GET /users/@me"
+    ],
+    "messages": true
+  }
 }
