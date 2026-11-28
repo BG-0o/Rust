@@ -1,8 +1,11 @@
 // @description Double-click to reply/edit, plus "Delete now" in the menu
-// @version 1.3.0
+// @version 1.3.1
 // @author Vendicated · Rust by BG_0o
 // @permissions hooks
+// @gateway messageCreate messageUpdate
 // @discord DELETE /channels/*/messages/*
+// @discord GET /channels/*/messages
+// @discord GET /users/@me
 // @discord PATCH /channels/*/messages/*
 // @messages
 // @ui-tree
@@ -47,17 +50,45 @@
     visible: (ctx) => settings.deleteNow && ctx.currentUserId != null && ctx.message?.author?.id === ctx.currentUserId,
     onPress: (ctx) => deleteMessage(ctx.channelId ?? ctx.message?.channel_id, ctx.messageId)
   });
+  var myId = null;
+  phoenix.discord.me().then((u) => {
+    if (u?.id) myId = u.id;
+  }).catch(() => {
+  });
+  var mine = /* @__PURE__ */ new Map();
+  var authors = /* @__PURE__ */ new Map();
+  var remember = (m) => {
+    const msg = m;
+    if (!msg?.id || !msg.author?.id) return;
+    authors.set(msg.id, msg.author.id);
+    if (myId && msg.author.id === myId && msg.channel_id) mine.set(msg.id, msg.channel_id);
+    if (authors.size > 5e3) authors.delete(authors.keys().next().value);
+    if (mine.size > 5e3) mine.delete(mine.keys().next().value);
+  };
+  var { gateway } = phoenix;
+  if (gateway.messageCreate) phoenix.on(gateway.messageCreate, remember);
+  if (gateway.messageUpdate) phoenix.on(gateway.messageUpdate, remember);
+  async function lookUpAuthor(channelId, messageId) {
+    try {
+      const res = await phoenix.discord.get(`/channels/${channelId}/messages?around=${messageId}&limit=1`);
+      if (!res.ok) return null;
+      const hit = res.json().find((m) => m.id === messageId);
+      if (hit) remember(hit);
+      return hit?.author?.id ?? null;
+    } catch {
+      return null;
+    }
+  }
   var ARM_MS = 12e4;
   var armed = null;
   var lastEdit = null;
   function armEdit(channelId, messageId) {
-    if (!channelId) return;
     if (armed?.messageId === messageId) {
       armed = null;
       phoenix.ui.toast("Edit cancelled");
       return;
     }
-    armed = { channelId, messageId, until: Date.now() + ARM_MS };
+    armed = { channelId: channelId ?? null, messageId, until: Date.now() + ARM_MS };
     phoenix.ui.toast("\u270F\uFE0F Type the new text and press Enter \xB7 double-click again to cancel");
   }
   phoenix.messages.onSend((text, ctx) => {
@@ -65,14 +96,19 @@
     if (lastEdit && lastEdit.channelId === ctx?.channelId && lastEdit.text === text && now - lastEdit.at < 2e4) {
       return false;
     }
-    if (!armed || now > armed.until || armed.channelId !== ctx?.channelId) {
+    if (!armed || now > armed.until || armed.channelId && armed.channelId !== ctx?.channelId) {
       if (armed && now > armed.until) armed = null;
       return;
     }
-    const { channelId, messageId } = armed;
+    const messageId = armed.messageId;
+    const channelId = armed.channelId ?? ctx?.channelId;
     armed = null;
+    if (!channelId) return;
     lastEdit = { channelId, text, at: now };
-    phoenix.discord.patch(`/channels/${channelId}/messages/${messageId}`, { content: text }).then((res) => phoenix.ui.toast(res.ok ? "Edited" : `Couldn't edit (${res.status})`)).catch(() => phoenix.ui.toast("Couldn't edit"));
+    phoenix.discord.patch(`/channels/${channelId}/messages/${messageId}`, { content: text }).then((res) => {
+      if (res.ok) mine.set(messageId, channelId);
+      phoenix.ui.toast(res.ok ? "Edited" : `Couldn't edit (${res.status})`);
+    }).catch(() => phoenix.ui.toast("Couldn't edit"));
     return false;
   });
   phoenix.ui.patchProps({ prefix: "message.content:" }, { addOn: ["rowDoubleTap"] }, { target: "list" });
@@ -96,16 +132,29 @@
     "rowDoubleTap",
     (ev) => {
       if (!ev.messageId) return false;
-      const own = ev.currentUserId != null && ev.message?.author?.id === ev.currentUserId;
+      const me = ev.currentUserId ?? myId;
+      const channelId = ev.channelId ?? ev.message?.channel_id ?? mine.get(ev.messageId) ?? null;
+      const author = ev.message?.author?.id ?? authors.get(ev.messageId) ?? (mine.has(ev.messageId) ? me : null);
+      if (!author && ev.press) {
+        if (!channelId || !me) return false;
+        const messageId = ev.messageId;
+        void lookUpAuthor(channelId, messageId).then((who) => {
+          if (who !== me) return;
+          if (settings.own === "edit") armEdit(channelId, messageId);
+          else if (settings.own === "delete") deleteMessage(channelId, messageId);
+        });
+        return true;
+      }
+      const own = me != null && author === me;
       if (own) {
         const mode = settings.own;
         if (mode === "none") return false;
         if (mode === "delete") {
-          deleteMessage(ev.channelId ?? ev.message?.channel_id, ev.messageId);
+          deleteMessage(channelId, ev.messageId);
           return true;
         }
         if (mode === "edit" && ev.press) {
-          armEdit(ev.channelId ?? ev.message?.channel_id, ev.messageId);
+          armEdit(channelId, ev.messageId);
           return true;
         }
         run(ev, mode === "edit" ? "message.actions.edit" : "message.actions.reply");

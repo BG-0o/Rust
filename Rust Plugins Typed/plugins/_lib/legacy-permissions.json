@@ -89,10 +89,16 @@
   "message-click-actions": {
     "discord": [
       "DELETE /channels/*/messages/*",
+      "GET /channels/*/messages",
+      "GET /users/@me",
       "PATCH /channels/*/messages/*"
     ],
     "uiTree": true,
-    "messages": true
+    "messages": true,
+    "gateway": [
+      "messageCreate",
+      "messageUpdate"
+    ]
   },
   "no-idle": {
     "gatewaySend": [
