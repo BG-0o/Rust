@@ -8,13 +8,14 @@ const settings = phoenix.settings.define({
   own: {
     type: "select",
     title: "Double-click on my message",
+    description: "Edit crashes Discord on some builds (a Sunbird bug), so it's off by default",
     options: [
-      { value: "edit", label: "Edit" },
-      { value: "delete", label: "Delete (no confirmation)" },
-      { value: "reply", label: "Reply" },
       { value: "none", label: "Nothing" },
+      { value: "reply", label: "Reply" },
+      { value: "delete", label: "Delete (no confirmation)" },
+      { value: "edit", label: "Edit (may crash Discord)" },
     ],
-    default: "edit",
+    default: "none",
   },
   deleteNow: {
     type: "switch",

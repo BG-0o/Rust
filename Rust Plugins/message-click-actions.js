@@ -1,5 +1,5 @@
 // @description Double-click to reply/edit, plus "Delete now" in the menu
-// @version 1.1.0
+// @version 1.2.0
 // @author Vendicated · Rust by BG_0o
 // @permissions hooks
 // @discord DELETE /channels/*/messages/*
@@ -17,13 +17,14 @@
     own: {
       type: "select",
       title: "Double-click on my message",
+      description: "Edit crashes Discord on some builds (a Sunbird bug), so it's off by default",
       options: [
-        { value: "edit", label: "Edit" },
-        { value: "delete", label: "Delete (no confirmation)" },
+        { value: "none", label: "Nothing" },
         { value: "reply", label: "Reply" },
-        { value: "none", label: "Nothing" }
+        { value: "delete", label: "Delete (no confirmation)" },
+        { value: "edit", label: "Edit (may crash Discord)" }
       ],
-      default: "edit"
+      default: "none"
     },
     deleteNow: {
       type: "switch",
